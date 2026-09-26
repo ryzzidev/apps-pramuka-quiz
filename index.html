@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PRAMUKA SKANSA QUIZ - DEV: ASRIL</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Config Tailwind & External CSS -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pramuka: {
+                            dark: '#3E2723',      /* Cokelat Tua Pramuka */
+                            primary: '#5D4037',   /* Cokelat Sedang */
+                            light: '#8D6E63',     /* Cokelat Muda */
+                            accent: '#D7CCC8',    /* Cokelat Krem Soft */
+                            cream: '#F5F5DC',     /* Krem / Kacu */
+                            gold: '#FFB300',      /* Kuning / Emas Pramuka */
+                            red: '#D32F2F',       /* Merah Kacu */
+                            bg: '#FBF9F5'         /* Latar Putih Cokelat Soft */
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        heading: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="font-sans text-gray-800 antialiased min-h-screen flex flex-col justify-between bg-white">
+
+    <!-- PROTEKSI SECURITY POPUP MODAL -->
+    <div id="securityModal" class="fixed inset-0 bg-black/80 z-[100] hidden flex items-center justify-center p-4 blur-overlay">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center border-2 border-pramuka-red shadow-2xl animate-shake">
+            <div class="w-16 h-16 bg-red-100 text-pramuka-red rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-2xl font-bold font-heading text-pramuka-red mb-2">AKSES DIBATASI</h3>
+            <p class="text-gray-700 font-medium mb-4">Fitur Klik Kanan, Inspect Element, dan Shortcut Developer sengaja dinonaktifkan untuk keamanan aplikasi.</p>
+            <div class="bg-pramuka-bg p-3 rounded-lg border border-pramuka-accent mb-5">
+                <p class="text-xs font-bold text-pramuka-dark uppercase tracking-widest">DEVELOPER OFFICIAL</p>
+                <p class="text-sm font-semibold text-pramuka-primary">DEV : ASRIL</p>
+            </div>
+            <button onclick="closeSecurityModal()" class="w-full py-3 bg-pramuka-primary hover:bg-pramuka-dark text-white font-bold rounded-xl transition shadow-lg">
+                Saya Mengerti
+            </button>
+        </div>
+    </div>
+
+    <!-- 1. SPLASH SCREEN LOADING -->
+    <div id="splashScreen" class="fixed inset-0 bg-white text-pramuka-dark z-50 flex flex-col items-center justify-between p-6 select-none border-4 border-pramuka-bg">
+        <div class="w-full text-right">
+            <span class="text-[10px] sm:text-xs tracking-widest uppercase bg-pramuka-bg px-3.5 py-1.5 rounded-full text-pramuka-dark font-mono font-bold border border-pramuka-accent">
+                DEV : ASRIL
+            </span>
+        </div>
+
+        <div class="flex flex-col items-center text-center my-auto">
+            <!-- Logo Besar Bulat Rapi -->
+            <div class="relative mb-6">
+                <div class="logo-container logo-glow">
+                    <img id="splashLogo" 
+                         src="https://files.catbox.moe/kwjjtr.png" 
+                         alt="Logo Pramuka SKANSA" 
+                         class="logo-img" 
+                         loading="eager" 
+                         onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/2/23/Gerakan_Pramuka_Indonesia_Logo.png';">
+                </div>
+            </div>
+            
+            <h1 class="text-2xl sm:text-3xl font-black font-heading text-pramuka-dark tracking-wide mb-1 uppercase">
+                APPS QUIZ PRAMUKA SKANSA
+            </h1>
+            <p class="text-xs sm:text-sm text-pramuka-light font-medium max-w-xs">
+                Sistem Edukasi, Penguji Materi Pramuka & Media Belajar Interaktif
+            </p>
+        </div>
+
+        <!-- Progress Loading -->
+        <div class="w-full max-w-md mb-8">
+            <div class="flex justify-between text-xs mb-2 text-pramuka-dark font-mono font-bold">
+                <span>Memuat Materi & Aplikasi...</span>
+                <span id="loadingPercent">0%</span>
+            </div>
+            <div class="w-full bg-pramuka-bg rounded-full h-3.5 p-0.5 border border-pramuka-accent overflow-hidden shadow-inner">
+                <div id="progressBar" class="bg-gradient-to-r from-pramuka-primary via-pramuka-gold to-pramuka-dark h-full rounded-full w-0 transition-all duration-100 ease-out shadow-sm"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ONBOARDING / INTRO MODAL -->
+    <div id="introModal" class="fixed inset-0 bg-black/60 z-40 hidden flex items-center justify-center p-4 blur-overlay">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 text-center border border-pramuka-accent shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-pramuka-primary via-pramuka-gold to-pramuka-red"></div>
+            
+            <div class="w-20 h-20 bg-pramuka-bg rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-pramuka-gold shadow-inner overflow-hidden">
+                <img src="https://files.catbox.moe/kwjjtr.png" alt="Logo Pramuka" class="w-full h-full object-cover rounded-full mix-blend-multiply" loading="eager" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/2/23/Gerakan_Pramuka_Indonesia_Logo.png';">
+            </div>
+
+            <h2 class="text-xl sm:text-2xl font-bold font-heading text-pramuka-dark mb-2">Selamat Datang Kakak/Adik!</h2>
+            
+            <p class="text-xs sm:text-sm text-gray-600 mb-4 leading-relaxed">
+                Aplikasi ini dirancang sebagai media pembelajaran interaktif Gerakan Pramuka Ambalan <strong>SKANSA</strong>. Temukan materi Sejarah, Panduan Lengkap 15 Sandi & Cara Menggunakannya, SKU/SKK, serta Quiz Interaktif!
+            </p>
+
+            <div class="bg-pramuka-bg p-3.5 rounded-2xl border border-pramuka-accent/60 mb-6 text-left space-y-1.5">
+                <div class="flex items-center text-xs text-gray-700">
+                    <i class="fa-solid fa-code text-pramuka-primary w-5"></i>
+                    <span>Pengembang: <strong class="text-pramuka-dark">ASRIL (DEV : ASRIL)</strong></span>
+                </div>
+                <div class="flex items-center text-xs text-gray-700">
+                    <i class="fa-solid fa-graduation-cap text-pramuka-primary w-5"></i>
+                    <span>Pangkalan: <strong class="text-pramuka-dark">Pramuka SKANSA</strong></span>
+                </div>
+            </div>
+
+            <button onclick="closeIntroModal()" class="w-full py-3.5 bg-pramuka-primary hover:bg-pramuka-dark text-white font-bold rounded-2xl shadow-lg transition hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 text-base">
+                <span>OKE, SAYA MENGERTI</span>
+                <i class="fa-solid fa-arrow-right text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div id="mainApp" class="flex-grow flex flex-col opacity-0 transition-opacity duration-500 bg-white">
+        
+        <!-- HEADER -->
+        <header class="bg-white border-b border-pramuka-accent sticky top-0 z-30 shadow-sm">
+            <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+                <!-- Hamburger Menu Button -->
+                <button onclick="toggleDrawer()" class="p-2.5 rounded-xl bg-pramuka-bg text-pramuka-dark hover:bg-pramuka-accent/50 transition focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+
+                <!-- App Title Right -->
+                <div class="text-right">
+                    <h1 class="text-base sm:text-xl font-black font-heading text-pramuka-dark leading-tight tracking-tight">
+                        PRAMUKA SKANSA QUIZ
+                    </h1>
+                    <p class="text-[10px] sm:text-xs text-pramuka-light font-medium">
+                        Hallo! kakak/adek 👋
+                    </p>
+                </div>
+            </div>
+        </header>
+
+        <!-- DRAWER NAVIGATION MENU -->
+        <div id="drawerOverlay" onclick="toggleDrawer()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity"></div>
+        <aside id="drawer" class="fixed top-0 left-0 w-72 sm:w-80 h-full bg-pramuka-dark text-white z-50 transform -translate-x-full transition-transform duration-300 ease-in-out flex flex-col justify-between shadow-2xl">
+            <div>
+                <div class="p-5 border-b border-pramuka-primary flex items-center justify-between bg-pramuka-dark">
+                    <div class="flex items-center gap-3">
+                        <img src="https://files.catbox.moe/kwjjtr.png" class="w-10 h-10 object-cover rounded-full mix-blend-multiply" loading="eager" onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/2/23/Gerakan_Pramuka_Indonesia_Logo.png';">
+                        <div>
+                            <h2 class="font-bold text-sm text-pramuka-gold font-heading">PRAMUKA SKANSA</h2>
+                            <p class="text-[10px] text-pramuka-accent">Navigasi Utama</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleDrawer()" class="text-pramuka-accent hover:text-white p-2">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <nav class="p-4 space-y-2">
+                    <button onclick="switchTab('home')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition hover:bg-pramuka-primary text-left">
+                        <i class="fa-solid fa-house w-6 text-pramuka-gold"></i> Beranda / Dashboard
+                    </button>
+                    <button onclick="switchTab('sejarah')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition hover:bg-pramuka-primary text-left">
+                        <i class="fa-solid fa-book-bookmark w-6 text-pramuka-gold"></i> Sejarah Pramuka
+                    </button>
+                    <button onclick="switchTab('sandi')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition hover:bg-pramuka-primary text-left">
+                        <i class="fa-solid fa-key w-6 text-pramuka-gold"></i> 15 Sandi Pramuka Lengkap
+                    </button>
+                    <button onclick="switchTab('sku')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition hover:bg-pramuka-primary text-left">
+                        <i class="fa-solid fa-award w-6 text-pramuka-gold"></i> Panduan SKU & SKK
+                    </button>
+                    <button onclick="switchTab('quiz')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition hover:bg-pramuka-primary text-left">
+                        <i class="fa-solid fa-gamepad w-6 text-pramuka-gold"></i> Quiz Interaktif
+                    </button>
+                </nav>
+            </div>
+
+            <div class="p-4 border-t border-pramuka-primary bg-black/20 text-center">
+                <p class="text-xs text-pramuka-accent">Di kembangkan oleh:</p>
+                <p class="text-sm font-bold text-pramuka-gold">DEV : ASRIL</p>
+                <p class="text-[10px] text-gray-400 mt-1">© 2026 Pramuka SKANSA</p>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="max-w-5xl mx-auto w-full px-4 py-6 flex-grow">
+
+            <!-- PAGE: DASHBOARD / HOME -->
+            <section id="pageHome" class="space-y-6">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-pramuka-dark via-pramuka-primary to-pramuka-dark rounded-3xl p-6 sm:p-8 text-white relative overflow-hidden shadow-xl border border-pramuka-gold/30">
+                    <div class="relative z-10 max-w-xl">
+                        <span class="bg-pramuka-gold text-pramuka-dark text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">
+                            Salam Pramuka! ⚜️
+                        </span>
+                        <h2 class="text-2xl sm:text-3xl font-black font-heading leading-tight mb-2">
+                            Siap Menguji Kemampuan Pramukamu Hari Ini?
+                        </h2>
+                        <p class="text-xs sm:text-sm text-pramuka-accent font-light mb-5">
+                            Pelajari semua materi sejarah, 15 sandi pramuka lengkap beserta cara penggunaannya, syarat SKU Bantara/Laksana, lalu uji kemampuanmu di modul Quiz!
+                        </p>
+                        <button onclick="switchTab('quiz')" class="bg-pramuka-gold hover:bg-yellow-400 text-pramuka-dark font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md transition inline-flex items-center gap-2">
+                            <i class="fa-solid fa-play"></i> Mulai Quiz Sekarang
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 MAIN MENU CARDS -->
+                <div>
+                    <h3 class="text-lg font-bold font-heading text-pramuka-dark mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-grip text-pramuka-primary"></i> 4 Menu Utama
+                    </h3>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-5">
+                        <!-- Menu 1 -->
+                        <div onclick="switchTab('sejarah')" class="bg-white p-4 sm:p-5 rounded-2xl border border-pramuka-accent hover:border-pramuka-gold shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                            <div>
+                                <div class="w-12 h-12 bg-amber-100 text-amber-800 rounded-2xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-landmark-dome"></i>
+                                </div>
+                                <h4 class="font-bold text-sm sm:text-base text-pramuka-dark mb-1">1. Sejarah</h4>
+                                <p class="text-[11px] sm:text-xs text-gray-500 line-clamp-2">Asal usul Pramuka Dunia & Indonesia lengkap.</p>
+                            </div>
+                            <span class="text-xs font-semibold text-pramuka-primary mt-3 flex items-center gap-1 group-hover:translate-x-1 transition">
+                                Buka <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </div>
+
+                        <!-- Menu 2 -->
+                        <div onclick="switchTab('sandi')" class="bg-white p-4 sm:p-5 rounded-2xl border border-pramuka-accent hover:border-pramuka-gold shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                            <div>
+                                <div class="w-12 h-12 bg-emerald-100 text-emerald-800 rounded-2xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-key"></i>
+                                </div>
+                                <h4 class="font-bold text-sm sm:text-base text-pramuka-dark mb-1">2. Sandi-Sandi</h4>
+                                <p class="text-[11px] sm:text-xs text-gray-500 line-clamp-2">15 macam sandi lengkap + cara pembuatannya.</p>
+                            </div>
+                            <span class="text-xs font-semibold text-pramuka-primary mt-3 flex items-center gap-1 group-hover:translate-x-1 transition">
+                                Buka <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </div>
+
+                        <!-- Menu 3 -->
+                        <div onclick="switchTab('sku')" class="bg-white p-4 sm:p-5 rounded-2xl border border-pramuka-accent hover:border-pramuka-gold shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                            <div>
+                                <div class="w-12 h-12 bg-blue-100 text-blue-800 rounded-2xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-award"></i>
+                                </div>
+                                <h4 class="font-bold text-sm sm:text-base text-pramuka-dark mb-1">3. SKU & SKK</h4>
+                                <p class="text-[11px] sm:text-xs text-gray-500 line-clamp-2">Penjelasan Bantara, Laksana & Tugas TKK.</p>
+                            </div>
+                            <span class="text-xs font-semibold text-pramuka-primary mt-3 flex items-center gap-1 group-hover:translate-x-1 transition">
+                                Buka <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </div>
+
+                        <!-- Menu 4 -->
+                        <div onclick="switchTab('quiz')" class="bg-white p-4 sm:p-5 rounded-2xl border border-pramuka-accent hover:border-pramuka-gold shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+                            <div>
+                                <div class="w-12 h-12 bg-rose-100 text-rose-800 rounded-2xl flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition">
+                                    <i class="fa-solid fa-circle-question"></i>
+                                </div>
+                                <h4 class="font-bold text-sm sm:text-base text-pramuka-dark mb-1">4. Quiz SKANSA</h4>
+                                <p class="text-[11px] sm:text-xs text-gray-500 line-clamp-2">Uji materi (20, 40, atau 60 Soal).</p>
+                            </div>
+                            <span class="text-xs font-semibold text-pramuka-primary mt-3 flex items-center gap-1 group-hover:translate-x-1 transition">
+                                Buka <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE: 1. SEJARAH PRAMUKA LENGKAP -->
+            <section id="pageSejarah" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-3xl border border-pramuka-accent shadow-sm">
+                    <h2 class="text-2xl font-bold font-heading text-pramuka-dark border-b pb-3 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-landmark-dome text-pramuka-gold"></i> Sejarah Kepramukaan Lengkap
+                    </h2>
+
+                    <div class="space-y-6 text-sm text-gray-700 leading-relaxed">
+                        
+                        <!-- 1. PENGERTIAN PRAMUKA -->
+                        <div class="bg-pramuka-bg p-5 rounded-2xl border border-pramuka-accent">
+                            <h3 class="font-bold text-pramuka-primary text-base mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-book-open text-pramuka-gold"></i> 1. Pengertian Pramuka
+                            </h3>
+                            <p class="mb-2">
+                                <strong>Pramuka</strong> merupakan singkatan dari <em>Praja Muda Karana</em>, yang memiliki arti "Rakyat Muda yang Suka Berkarya". Sebelum istilah ini ditetapkan, kata "Pramuka" diambil oleh Sri Sultan Hamengkubuwono IX dari kata <em>"Pramuko"</em> (pasukan terdepan dalam pertempuran).
+                            </p>
+                            <p>
+                                <strong>Kepramukaan</strong> adalah proses pendidikan nonformal di luar lingkungan sekolah dan keluarga dalam bentuk kegiatan yang menarik, menyenangkan, sehat, teratur, terarah, dan praktis yang dilakukan di alam terbuka dengan menerapkan Prinsip Dasar Kepramukaan dan Metode Kepramukaan guna membentuk karakter, akhlak, dan budi pekerti luhur.
+                            </p>
+                        </div>
+
+                        <!-- 2. SEJARAH PRAMUKA DI DUNIA -->
+                        <div class="bg-pramuka-bg p-5 rounded-2xl border border-pramuka-accent">
+                            <h3 class="font-bold text-pramuka-primary text-base mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-globe text-pramuka-gold"></i> 2. Sejarah Pramuka di Dunia
+                            </h3>
+                            <p class="mb-2">
+                                Sejarah Kepramukaan di dunia dipelopori oleh <strong>Lord Robert Baden-Powell of Gilwell</strong> (Letnan Jenderal Angkatan Bersenjata Inggris).
+                            </p>
+                            <p class="mb-2">
+                                Pada tanggal <strong>25 Juli hingga 2 Agustus 1907</strong>, Baden-Powell menyelenggarakan perkemahan kepanduan pertama di <strong>Pulau Brownsea, Inggris</strong>, bersama 22 anak laki-laki. Pengalaman perkemahan tersebut ia tuliskan dalam buku terkenal bertajuk <em>"Scouting for Boys"</em> pada tahun 1908.
+                            </p>
+                            <p>
+                                Buku tersebut menyebar luas ke berbagai negara hingga mendorong berdirinya organisasi kepanduan di seluruh dunia. Pada tahun 1920, diselenggarakan <strong>Jambore Dunia Pertama</strong> di Olympia, London, di mana Baden-Powell secara resmi diangkat sebagai <strong>Bapak Pandu Dunia (Chief Scout of the World)</strong>.
+                            </p>
+                        </div>
+
+                        <!-- 3. SEJARAH PRAMUKA DI INDONESIA (3 MASA) -->
+                        <div class="bg-pramuka-bg p-5 rounded-2xl border border-pramuka-accent space-y-4">
+                            <h3 class="font-bold text-pramuka-primary text-base mb-2 flex items-center gap-2 border-b border-pramuka-accent pb-2">
+                                <i class="fa-solid fa-flag text-pramuka-gold"></i> 3. Sejarah Pramuka di Indonesia
+                            </h3>
+                            <p>Perkembangan gerakan kepanduan di Indonesia terbagi ke dalam tiga periode penting:</p>
+
+                            <div class="bg-white p-4 rounded-xl border border-pramuka-accent">
+                                <h4 class="font-bold text-pramuka-dark text-sm mb-1">a. Pramuka Pada Masa Penjajahan Belanda</h4>
+                                <p class="text-xs mb-2">
+                                    Gerakan kepanduan dibawa oleh Belanda ke Indonesia dengan berdirinya cabang organisasi kepanduan Belanda bernama <em>Nederlandsche Padvinders Organisatie (NPO)</em> pada tahun 1912 di Batavia, yang berganti nama menjadi <em>Nederlands-Indische Padvinders Vereeniging (NIPV)</em> pada tahun 1916.
+                                </p>
+                                <p class="text-xs">
+                                    Tokoh nasional S.P. Mangkunegara VII kemudian mendirikan organisasi kepanduan pertama milik pribumi bernama <em>Javaansche Padvinders Organisatie (JPO)</em> pada tahun 1916 di Surakarta. Ketika Belanda melarang organisasi pribumi memakai istilah <em>"Padvinder"</em>, <strong>KH. Agus Salim</strong> mencetuskan istilah <strong>"Pandu"</strong> dan <strong>"Kepanduan"</strong>.
+                                </p>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-pramuka-accent">
+                                <h4 class="font-bold text-pramuka-dark text-sm mb-1">b. Pramuka Pada Masa Penjajahan Jepang</h4>
+                                <p class="text-xs mb-2">
+                                    Pada masa pendudukan militer Jepang (1942–1945), pemerintah Jepang melarang keberadaan seluruh partai politik dan organisasi masyarakat, termasuk organisasi kepanduan independen di Indonesia.
+                                </p>
+                                <p class="text-xs">
+                                    Para tokoh kepanduan dipaksa bergabung ke dalam organisasi pemuda bentukan Jepang seperti <em>Seinedan</em>, <em>Keibodan</em>, dan <em>Peta (Pembela Tanah Air)</em>. Kendati demikian, nilai-nilai kepanduan dan semangat nasionalisme tetap dipertahankan secara tersembunyi oleh para tokoh pandu menuju kemerdekaan Indonesia.
+                                </p>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-pramuka-accent">
+                                <h4 class="font-bold text-pramuka-dark text-sm mb-1">c. Pramuka Pada Masa Setelah Proklamasi Kemerdekaan</h4>
+                                <p class="text-xs mb-2">
+                                    Setelah proklamasi kemerdekaan, diselenggarakan Kongres Kesatuan Pandu Indonesia pada tanggal 27–28 Desember 1945 di Surakarta yang melahirkan <em>Pandu Rakyat Indonesia</em> sebagai wadah tunggal kepanduan.
+                                </p>
+                                <p class="text-xs mb-2">
+                                    Seiring berjalannya waktu, organisasi kepanduan berkembang pesat hingga mencapai lebih dari 100 organisasi. Untuk menyatukannya, Presiden Soekarno mengeluarkan <strong>Keputusan Presiden No. 238 Tahun 1961</strong> pada tanggal 20 Mei 1961 yang menetapkan Gerakan Pramuka sebagai satu-satunya organisasi penyelenggara pendidikan kepanduan di Indonesia.
+                                </p>
+                                <p class="text-xs">
+                                    Gerakan Pramuka diperkenalkan secara resmi kepada masyarakat Indonesia pada tanggal <strong>14 Agustus 1961</strong>, yang kini diperingati setiap tahunnya sebagai <strong>Hari Pramuka</strong>.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 4. MENGENAL BAPAK PRAMUKA INDONESIA -->
+                        <div class="bg-pramuka-bg p-5 rounded-2xl border border-pramuka-accent">
+                            <h3 class="font-bold text-pramuka-primary text-base mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-user-shield text-pramuka-gold"></i> 4. Mengenal Bapak Pramuka Indonesia
+                            </h3>
+                            <p class="mb-2">
+                                Bapak Pramuka Indonesia adalah <strong>Sri Sultan Hamengkubuwono IX</strong> (Raja Kesultanan Yogyakarta dan Wakil Presiden Republik Indonesia ke-2).
+                            </p>
+                            <p class="mb-2">
+                                Beliau berperan utama dalam menyatukan berbagai organisasi kepanduan di Indonesia menjadi Gerakan Pramuka pada tahun 1961 dan menjabat sebagai <strong>Ketua Kwartir Nasional (Ka Kwarnas) pertama</strong> selama tiga periode berturut-turut dari tahun 1961 hingga 1974.
+                            </p>
+                            <p class="mb-2">
+                                Atas dedikasi dan jasanya yang luar biasa dalam memajukan gerakan kepanduan, beliau dianugerahi penghargaan kepanduan tertinggi dunia, yaitu <em>Bronze Wolf Award</em> dari World Scout Bureau pada tahun 1973.
+                            </p>
+                            <p>
+                                Secara resmi, beliau ditetapkan sebagai <strong>Bapak Pramuka Indonesia</strong> melalui Keputusan Musyawarah Nasional (Munas) IV Gerakan Pramuka pada tahun 1988 di Dili, Timor Timur.
+                            </p>
+                        </div>
+
+                        <!-- 5. PROFIL AMBALAN SKANSA -->
+                        <div class="bg-pramuka-bg p-5 rounded-2xl border border-pramuka-accent">
+                            <h3 class="font-bold text-pramuka-primary text-base mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-school text-pramuka-gold"></i> 5. Profil Ambalan SKANSA
+                            </h3>
+                            <p>
+                                Ambalan Pramuka Penegak SKANSA didirikan sebagai wadah pembentukan karakter, kedisiplinan, serta keterampilan kepemimpinan peserta didik. Ambalan ini senantiasa aktif dalam kegiatan keperkemahan, bakti masyarakat, serta perlombaan kepramukaan.
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE: 2. SANDI-SANDI PRAMUKA (15 SANDI DETAIL) -->
+            <section id="pageSandi" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-3xl border border-pramuka-accent shadow-sm">
+                    <div class="border-b pb-3 mb-6">
+                        <h2 class="text-2xl font-bold font-heading text-pramuka-dark flex items-center gap-2">
+                            <i class="fa-solid fa-key text-pramuka-gold"></i> Panduan 15 Sandi Pramuka Lengkap
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1">Penjelasan mendalam: Konsep, Kunci/Matriks, Cara Mengirim/Menerima Pesan, Contoh Latihan, beserta Gambar Ilustrasi.</p>
+                    </div>
+
+                    <div id="sandiAccordion" class="space-y-4">
+                        <!-- Content via JS below -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE: 3. SKU & SKK -->
+            <section id="pageSku" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-3xl border border-pramuka-accent shadow-sm">
+                    <h2 class="text-2xl font-bold font-heading text-pramuka-dark border-b pb-3 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-award text-pramuka-gold"></i> Panduan SKU, SKK & Syarat Kecakapan
+                    </h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- SKU PENEGAK BANTARA -->
+                        <div class="bg-pramuka-bg p-5 rounded-2xl border border-pramuka-accent">
+                            <span class="bg-pramuka-primary text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Penegak Bantara</span>
+                            <h3 class="text-lg font-bold text-pramuka-dark mt-2 mb-3">Syarat SKU Bantara</h3>
+                            <ul class="text-xs text-gray-700 space-y-2 list-disc list-inside leading-relaxed">
+                                <li>Rajin dan aktif mengikuti latihan Ambalan sekurang-kurangnya 10 kali berturut-turut.</li>
+                                <li>Hafal dan memahami Tri Satya serta Dasa Darma Pramuka.</li>
+                                <li>Dapat menjelaskan sejarah Kepramukaan Indonesia dan Dunia.</li>
+                                <li>Tahu tata cara menggunakan bendera merah putih & lagu kebangsaan.</li>
+                                <li>Dapat membina pertolongan pertama (P3K) dasar.</li>
+                                <li>Memenuhi tugas bakti masyarakat dan kewirausahaan sederhana.</li>
+                            </ul>
+                        </div>
+
+                        <!-- SKU PENEGAK LAKSANA -->
+                        <div class="bg-pramuka-bg p-5 rounded-2xl border border-pramuka-accent">
+                            <span class="bg-pramuka-dark text-pramuka-gold text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">Penegak Laksana</span>
+                            <h3 class="text-lg font-bold text-pramuka-dark mt-2 mb-3">Syarat SKU Laksana</h3>
+                            <ul class="text-xs text-gray-700 space-y-2 list-disc list-inside leading-relaxed">
+                                <li>Telah dilantik menjadi Penegak Bantara sekurang-kurangnya 3 bulan.</li>
+                                <li>Dapat memimpin rapat dan diskusi ambalan secara tertib.</li>
+                                <li>Dapat membuat peta pita, peta lokasi, serta navigasi darat/kompas.</li>
+                                <li>Memiliki sekurang-kurangnya 5 TKK (Tanda Kecakapan Khusus).</li>
+                                <li>Mampu merencanakan dan melaksanakan kegiatan bakti ambalan di masyarakat.</li>
+                                <li>Menguasai baris-berbaris (PBB) dan tongkat secara lengkap.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- PENJELASAN SKK / TKK -->
+                    <div class="mt-6 bg-amber-50 p-5 rounded-2xl border border-amber-200">
+                        <h3 class="text-base font-bold text-amber-900 mb-2">Tingkatan Tanda Kecakapan Khusus (TKK)</h3>
+                        <p class="text-xs text-amber-800 leading-relaxed mb-3">
+                            TKK dibagi menjadi 3 tingkat berdasarkan keterampilan anggota Pramuka:
+                        </p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div class="bg-white p-3 rounded-xl border border-amber-300">
+                                <span class="font-bold text-amber-900">1. Purwa (Lingkaran)</span>
+                                <p class="text-gray-600 mt-1">Tingkat dasar/pemula dalam bidang tertentu.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-amber-300">
+                                <span class="font-bold text-amber-900">2. Madya (Persegi)</span>
+                                <p class="text-gray-600 mt-1">Tingkat menengah yang sudah mahir berpraktek.</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-xl border border-amber-300">
+                                <span class="font-bold text-amber-900">3. Utama (Segilima)</span>
+                                <p class="text-gray-600 mt-1">Tingkat tertinggi & mampu melatih anggota lain.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE: 4. QUIZ PRAMUKA INTERAKTIF -->
+            <section id="pageQuiz" class="hidden space-y-6">
+                <!-- QUIZ SETUP / SELECTION -->
+                <div id="quizSetupCard" class="bg-white p-6 rounded-3xl border border-pramuka-accent shadow-sm text-center">
+                    <div class="w-16 h-16 bg-pramuka-bg text-pramuka-dark rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-pramuka-gold text-2xl">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold font-heading text-pramuka-dark mb-1">Mulai Quiz Pramuka</h2>
+                    <p class="text-xs text-gray-500 mb-6">Pilih jumlah soal yang ingin dikerjakan. Alokasi waktu standar: 15 Menit.</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg mx-auto mb-6">
+                        <button onclick="startQuiz(20)" class="p-4 rounded-2xl border-2 border-pramuka-accent hover:border-pramuka-primary hover:bg-pramuka-bg transition flex flex-col items-center group">
+                            <span class="text-2xl font-black text-pramuka-primary group-hover:scale-110 transition">20</span>
+                            <span class="text-xs font-semibold text-gray-600">Soal Quiz</span>
+                        </button>
+
+                        <button onclick="startQuiz(40)" class="p-4 rounded-2xl border-2 border-pramuka-accent hover:border-pramuka-primary hover:bg-pramuka-bg transition flex flex-col items-center group">
+                            <span class="text-2xl font-black text-pramuka-primary group-hover:scale-110 transition">40</span>
+                            <span class="text-xs font-semibold text-gray-600">Soal Quiz</span>
+                        </button>
+
+                        <button onclick="startQuiz(60)" class="p-4 rounded-2xl border-2 border-pramuka-accent hover:border-pramuka-primary hover:bg-pramuka-bg transition flex flex-col items-center group">
+                            <span class="text-2xl font-black text-pramuka-primary group-hover:scale-110 transition">60</span>
+                            <span class="text-xs font-semibold text-gray-600">Soal Quiz</span>
+                        </button>
+                    </div>
+
+                    <p class="text-[11px] text-gray-400 font-mono">DEV : ASRIL | PRAMUKA SKANSA</p>
+                </div>
+
+                <!-- ACTIVE QUIZ CARD -->
+                <div id="quizActiveCard" class="hidden bg-white rounded-3xl border border-pramuka-accent shadow-lg overflow-hidden">
+                    <!-- Quiz Header Bar -->
+                    <div class="bg-pramuka-dark text-white p-4 px-6 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] text-pramuka-gold font-mono uppercase tracking-wider">Soal Berjalan</span>
+                            <h4 class="text-sm sm:text-base font-bold font-heading">
+                                Soal <span id="currentQuestionNum">1</span> / <span id="totalQuestionNum">20</span>
+                            </h4>
+                        </div>
+
+                        <!-- Timer Countdown -->
+                        <div class="bg-pramuka-primary/80 px-3 py-1.5 rounded-xl border border-pramuka-gold/40 flex items-center gap-2">
+                            <i class="fa-solid fa-clock text-pramuka-gold text-xs"></i>
+                            <span id="quizTimer" class="font-mono text-xs sm:text-sm font-bold text-pramuka-cream">15:00</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-gray-100 h-1.5">
+                        <div id="quizProgressBar" class="bg-pramuka-gold h-full w-0 transition-all duration-300"></div>
+                    </div>
+
+                    <!-- Question & Options Body -->
+                    <div class="p-6 sm:p-8">
+                        <h3 id="questionText" class="text-base sm:text-lg font-bold text-pramuka-dark mb-6 leading-snug">
+                            <!-- Question text loaded via JS -->
+                        </h3>
+
+                        <!-- 2 Answer Options -->
+                        <div id="optionsContainer" class="space-y-3 sm:space-y-4">
+                            <!-- Options injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUIZ RESULT CARD -->
+                <div id="quizResultCard" class="hidden bg-white p-6 sm:p-8 rounded-3xl border border-pramuka-accent shadow-xl text-center">
+                    <div id="resultIconBox" class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-md">
+                        <!-- Icon JS -->
+                    </div>
+
+                    <h2 id="resultTitle" class="text-2xl sm:text-3xl font-black font-heading text-pramuka-dark mb-2"></h2>
+                    <p id="resultMotivator" class="text-xs sm:text-sm text-gray-600 max-w-md mx-auto mb-6 italic"></p>
+
+                    <!-- Score Cards Grid -->
+                    <div class="grid grid-cols-3 gap-3 max-w-sm mx-auto mb-6">
+                        <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-2xl">
+                            <p class="text-[10px] uppercase font-bold text-emerald-800">Benar</p>
+                            <p id="countCorrect" class="text-xl font-black text-emerald-600">0</p>
+                        </div>
+                        <div class="bg-rose-50 border border-rose-200 p-3 rounded-2xl">
+                            <p class="text-[10px] uppercase font-bold text-rose-800">Salah</p>
+                            <p id="countWrong" class="text-xl font-black text-rose-600">0</p>
+                        </div>
+                        <div class="bg-amber-50 border border-amber-200 p-3 rounded-2xl">
+                            <p class="text-[10px] uppercase font-bold text-amber-800">Skor Akhir</p>
+                            <p id="countScore" class="text-xl font-black text-amber-600">0</p>
+                        </div>
+                    </div>
+
+                    <!-- Wrong Answers Review Section -->
+                    <div id="reviewSection" class="text-left mb-6 bg-pramuka-bg p-4 rounded-2xl border border-pramuka-accent max-h-60 overflow-y-auto">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-pramuka-dark mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-pramuka-primary"></i> Review Evaluasi Jawaban Salah:
+                        </h4>
+                        <div id="reviewList" class="space-y-2 text-xs">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <button onclick="resetQuiz()" class="w-full sm:w-auto px-8 py-3.5 bg-pramuka-primary hover:bg-pramuka-dark text-white font-bold rounded-2xl transition shadow-md">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Coba Quiz Lagi
+                    </button>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-white border-t border-pramuka-accent py-4 text-center text-xs text-gray-500">
+            <p>© 2026 <strong>PRAMUKA SKANSA QUIZ</strong> | DEV : ASRIL</p>
+        </footer>
+    </div>
+
+    <!-- External Script JS -->
+    <script src="script.js"></script>
+</body>
+</html>
