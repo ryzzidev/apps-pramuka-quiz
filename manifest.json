@@ -1,0 +1,24 @@
+{
+  "name": "QUIZ PRASKANSA",
+  "short_name": "PRASKANSA",
+  "description": "Sistem Edukasi, Penguji Materi Pramuka & Media Belajar Interaktif SKANSA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#3E2723",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://files.catbox.moe/kwjjtr.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://files.catbox.moe/kwjjtr.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
