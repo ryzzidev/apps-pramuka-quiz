@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PRAMUKA SKANSA QUIZ - DEV: ASRIL</title>
+    <title>QUIZ PRASKANSA - DEV: ASRIL</title>
+    
+    <!-- PWA Meta Tags & Icons -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#3E2723">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="QUIZ PRASKANSA">
+    <link rel="apple-touch-icon" href="https://files.catbox.moe/kwjjtr.png">
+    <link rel="icon" type="image/png" href="https://files.catbox.moe/kwjjtr.png">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Canvas Confetti CDN -->
@@ -595,5 +606,16 @@
 
     <!-- External Script JS -->
     <script src="script.js"></script>
+
+    <!-- Registrasi Service Worker PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('Service Worker PWA Berhasil Didaftarkan:', reg.scope))
+                    .catch(err => console.error('Pendaftaran Service Worker Gagal:', err));
+            });
+        }
+    </script>
 </body>
 </html>
